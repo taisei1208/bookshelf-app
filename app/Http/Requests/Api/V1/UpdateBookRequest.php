@@ -38,8 +38,8 @@ class UpdateBookRequest extends FormRequest
             'published_date' => ['required', 'date'],
             'description' => ['nullable', 'string'],
             'image_url' => ['nullable', 'url', 'max:255'],
-            'genre_ids' => ['required', 'array', 'min:1'],
-            'genre_ids.*' => ['integer', 'distinct', 'exists:genres,id'],
+            'genres' => ['required', 'array', 'min:1'],
+            'genres.*' => ['integer', 'distinct', 'exists:genres,id'],
         ];
     }
 

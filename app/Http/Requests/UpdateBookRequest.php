@@ -38,8 +38,8 @@ class UpdateBookRequest extends FormRequest
             'published_date' => ['required', 'date'],
             'description' => ['nullable', 'string'],
             'image_url' => ['nullable', 'url', 'max:255'],
-            'genre_ids' => ['required', 'array', 'min:1'],
-            'genre_ids.*' => ['integer', 'distinct', 'exists:genres,id'],
+            'genres' => ['required', 'array', 'min:1'],
+            'genres.*' => ['integer', 'distinct', 'exists:genres,id'],
         ];
     }
 
@@ -67,13 +67,13 @@ class UpdateBookRequest extends FormRequest
             'image_url.url' => '画像URLはURL形式で入力してください。',
             'image_url.max' => '画像URLは255文字以内で入力してください。',
 
-            'genre_ids.required' => 'ジャンルを1つ以上選択してください。',
-            'genre_ids.array' => 'ジャンルの指定形式が正しくありません。',
-            'genre_ids.min' => 'ジャンルを1つ以上選択してください。',
+            'genres.required' => 'ジャンルを1つ以上選択してください。',
+            'genres.array' => 'ジャンルの指定形式が正しくありません。',
+            'genres.min' => 'ジャンルを1つ以上選択してください。',
 
-            'genre_ids.*.integer' => 'ジャンルIDの形式が正しくありません。',
-            'genre_ids.*.distinct' => '同じジャンルが重複して指定されています。',
-            'genre_ids.*.exists' => '選択されたジャンルが存在しません。',
+            'genres.*.integer' => 'ジャンルIDの形式が正しくありません。',
+            'genres.*.distinct' => '同じジャンルが重複して指定されています。',
+            'genres.*.exists' => '選択されたジャンルが存在しません。',
         ];
     }
 }
