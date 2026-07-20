@@ -14,5 +14,12 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return '
+        <h1>書籍一覧（準備中）</h1>
+
+        <form method="POST" action="'.route('logout').'">
+            '.csrf_field().'
+            <button type="submit">ログアウト</button>
+        </form>
+    ';
 });
