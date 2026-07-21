@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -17,7 +18,11 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [BookController::class, 'index'])->name('books.index');
 
 Route::middleware('auth')->group(function () {
-    Route::resource('books', BookController::class)->except(['index', 'show']);
+    Route::post('/books/{book}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+
+    Route::resource('/reviews', ReviewController::class)->only(['edit', 'update', 'destroy']);
+
+    Route::resource('/books', BookController::class)->except(['index', 'show']);
 });
 
 Route::get('books/{book}', [BookController::class, 'show'])->name('books.show');
@@ -41,13 +46,6 @@ Route::get('/genres', function () {
 Route::post('/books/{book}/favorites', function (Book $book) {
     return back()->with('success', 'お気に入り処理（仮）');
 })->name('favorites.toggle');
-
-// 仮：レビュー投稿
-Route::post('/books/{book}/reviews', function (Book $book) {
-    return redirect()
-        ->route('books.show', $book)
-        ->with('success', 'レビュー投稿処理（仮）');
-})->name('reviews.store');
 
 // 仮：レビューいいね登録
 Route::post('/reviews/{review}/like', function (Review $review) {
