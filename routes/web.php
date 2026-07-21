@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\GenreController;
 use App\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +24,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('/reviews', ReviewController::class)->only(['edit', 'update', 'destroy']);
 
     Route::resource('/books', BookController::class)->except(['index', 'show']);
+
+    Route::resource('genres', GenreController::class);
 });
 
 Route::get('books/{book}', [BookController::class, 'show'])->name('books.show');
@@ -36,11 +39,6 @@ Route::get('/ranking', function () {
 Route::get('/favorites', function () {
     return 'お気に入り一覧（準備中）';
 })->name('favorites.index');
-
-// 仮：ジャンル一覧
-Route::get('/genres', function () {
-    return 'ジャンル一覧（準備中）';
-})->name('genres.index');
 
 // 仮：お気に入り登録
 Route::post('/books/{book}/favorites', function (Book $book) {
