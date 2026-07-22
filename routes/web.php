@@ -4,6 +4,7 @@ use App\Http\Controllers\BookController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\GenreController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\ReviewLikeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -31,6 +32,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
 
     Route::post('/books/{book}/favorites', [FavoriteController::class, 'toggle'])->name('favorites.toggle');
+
+    Route::post('/reviews/{review}/like', [ReviewLikeController::class, 'toggle'])->name('reviews.like');
 });
 
 Route::get('books/{book}', [BookController::class, 'show'])->name('books.show');
@@ -39,10 +42,3 @@ Route::get('books/{book}', [BookController::class, 'show'])->name('books.show');
 Route::get('/ranking', function () {
     return 'ランキング一覧（準備中）';
 })->name('ranking.index');
-
-// 仮：レビューいいね登録
-Route::post('/reviews/{review}/like', function (Review $review) {
-    return redirect()
-        ->route('books.show', $review->book)
-        ->with('success', 'レビューいいね処理（仮）');
-})->name('reviews.like');
