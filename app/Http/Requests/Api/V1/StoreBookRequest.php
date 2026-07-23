@@ -56,12 +56,12 @@ class StoreBookRequest extends FormRequest
             'description.string' => '書籍説明は文字列で入力してください。',
             'image_url.url' => '画像URLはURL形式で入力してください。',
             'image_url.max' => '画像URLは255文字以内で入力してください。',
-            'genre_ids.required' => 'ジャンルを1つ以上選択してください。',
-            'genre_ids.array' => 'ジャンルの指定形式が正しくありません。',
-            'genre_ids.min' => 'ジャンルを1つ以上選択してください。',
-            'genre_ids.*.integer' => 'ジャンルIDの形式が正しくありません。',
-            'genre_ids.*.distinct' => '同じジャンルが重複して指定されています。',
-            'genre_ids.*.exists' => '選択されたジャンルが存在しません。',
+            'genres.required' => 'ジャンルを1つ以上選択してください。',
+            'genres.array' => 'ジャンルの指定形式が正しくありません。',
+            'genres.min' => 'ジャンルを1つ以上選択してください。',
+            'genres.*.integer' => 'ジャンルIDの形式が正しくありません。',
+            'genres.*.distinct' => '同じジャンルが重複して指定されています。',
+            'genres.*.exists' => '選択されたジャンルが存在しません。',
         ];
     }
 }
