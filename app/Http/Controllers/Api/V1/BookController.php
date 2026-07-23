@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\IndexBookRequest;
+use App\Http\Requests\Api\V1\StoreBookRequest;
+use App\Http\Requests\Api\V1\UpdateBookRequest;
 use App\Http\Resources\Api\V1\BookResource;
 use App\Models\Book;
 
@@ -47,9 +49,21 @@ class BookController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreBookRequest $request)
     {
-        //
+        $validated = $request->validated();
+        $genreIds = $validated['genres'];
+        unset($validated['genres']);
+
+        $book = Book::create($validated);
+
+        $book->genres()->sync($genreIds);
+
+        $book->load('genres');
+
+        return (new BookResource($book))
+            ->response()
+            ->setStatusCode(201);
     }
 
     /**
@@ -70,16 +84,28 @@ class BookController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateBookRequest $request, Book $book)
     {
-        //
+        $validated = $request->validated();
+        $genreIds = $validated['genres'];
+        unset($validated['genres']);
+
+        $book->update($validated);
+
+        $book->genres()->sync($genreIds);
+
+        $book->load('genres');
+
+        return new BookResource($book);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Book $book)
     {
-        //
+        $book->delete();
+
+        return response()->json(null, 204);
     }
 }
