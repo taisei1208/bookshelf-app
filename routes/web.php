@@ -40,3 +40,11 @@ Route::middleware('auth')->group(function () {
 Route::get('books/{book}', [BookController::class, 'show'])->name('books.show');
 
 Route::get('/ranking', [RankingController::class, 'index'])->name('ranking.index');
+
+Route::get('/reports', function () {
+    return redirect()->route('books.index');
+})->name('reports.index');
+
+Route::get('/reading-plans', function () {
+    return redirect()->route('books.index');
+})->name('reading-plans.index');

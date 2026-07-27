@@ -8,13 +8,16 @@ use App\Http\Requests\Api\V1\StoreBookRequest;
 use App\Http\Requests\Api\V1\UpdateBookRequest;
 use App\Http\Resources\Api\V1\BookResource;
 use App\Models\Book;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\DB;
 
 class BookController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(IndexBookRequest $request)
+    public function index(IndexBookRequest $request): AnonymousResourceCollection
     {
         $validated = $request->validated();
         $query = Book::with('genres');
@@ -49,15 +52,20 @@ class BookController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreBookRequest $request)
+    public function store(StoreBookRequest $request): JsonResponse
     {
         $validated = $request->validated();
         $genreIds = $validated['genres'];
         unset($validated['genres']);
 
-        $book = Book::create($validated);
+        $book = DB::transaction(
+            function () use ($validated, $genreIds): Book {
+                $book = Book::create($validated);
+                $book->genres()->sync($genreIds);
 
-        $book->genres()->sync($genreIds);
+                return $book;
+            }
+        );
 
         $book->load('genres');
 
@@ -69,7 +77,7 @@ class BookController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Book $book)
+    public function show(Book $book): BookResource
     {
         $book->load([
             'genres',
@@ -84,15 +92,22 @@ class BookController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateBookRequest $request, Book $book)
+    public function update(UpdateBookRequest $request, Book $book): BookResource
     {
         $validated = $request->validated();
         $genreIds = $validated['genres'];
         unset($validated['genres']);
 
-        $book->update($validated);
-
-        $book->genres()->sync($genreIds);
+        DB::transaction(
+            function () use (
+                $book,
+                $validated,
+                $genreIds
+            ): void {
+                $book->update($validated);
+                $book->genres()->sync($genreIds);
+            }
+        );
 
         $book->load('genres');
 
@@ -102,7 +117,7 @@ class BookController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Book $book)
+    public function destroy(Book $book): JsonResponse
     {
         $book->delete();
 

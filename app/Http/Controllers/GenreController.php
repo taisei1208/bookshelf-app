@@ -5,13 +5,15 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreGenreRequest;
 use App\Http\Requests\UpdateGenreRequest;
 use App\Models\Genre;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class GenreController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(): View
     {
         $genres = Genre::withCount('books')->orderBy('id', 'asc')->get();
 
@@ -21,7 +23,7 @@ class GenreController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): View
     {
         return view('genres.create');
     }
@@ -29,7 +31,7 @@ class GenreController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreGenreRequest $request)
+    public function store(StoreGenreRequest $request): RedirectResponse
     {
         $validated = $request->validated();
 
@@ -41,7 +43,7 @@ class GenreController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Genre $genre)
+    public function show(Genre $genre): View
     {
         $books = $genre->books()->with('genres')->orderBy('id', 'asc')->paginate(10);
 
@@ -51,7 +53,7 @@ class GenreController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Genre $genre)
+    public function edit(Genre $genre): View
     {
         return view('genres.edit', compact('genre'));
     }
@@ -59,7 +61,7 @@ class GenreController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateGenreRequest $request, Genre $genre)
+    public function update(UpdateGenreRequest $request, Genre $genre): RedirectResponse
     {
         $validated = $request->validated();
 
@@ -71,7 +73,7 @@ class GenreController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Genre $genre)
+    public function destroy(Genre $genre): RedirectResponse
     {
         if ($genre->books()->exists()) {
             return redirect()->route('genres.index')->with('error', 'このジャンルに紐づく書籍があるため削除できません。');
