@@ -12,6 +12,11 @@ class Book extends Model
 {
     use HasFactory;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'user_id',
         'title',
@@ -20,6 +25,13 @@ class Book extends Model
         'published_date',
         'description',
         'image_url',
+    ];
+
+    /**
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'published_date' => 'date',
     ];
 
     public function user(): BelongsTo
