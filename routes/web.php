@@ -48,3 +48,7 @@ Route::get('/reports', function () {
 Route::get('/reading-plans', function () {
     return redirect()->route('books.index');
 })->name('reading-plans.index');
+
+Route::get('/notifications', function () {
+    return redirect()->route('books.index');
+})->name('notifications.index');
