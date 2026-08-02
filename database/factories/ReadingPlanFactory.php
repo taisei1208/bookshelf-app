@@ -37,7 +37,7 @@ class ReadingPlanFactory extends Factory
      */
     public function completed(): static
     {
-        return $this->status(
+        return $this->state(
             fn (array $attributes): array => [
                 'target_date' => today()->subDays(2),
                 'status' => ReadingPlanStatus::Completed,
