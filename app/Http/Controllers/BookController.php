@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\IndexBookRequest;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
 use App\Models\Book;
@@ -15,11 +16,32 @@ class BookController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(): View
+    public function index(IndexBookRequest $request): View
     {
-        $books = Book::with('genres')->orderBy('id', 'asc')->paginate(10);
+        $validated = $request->validated();
 
-        return view('books.index', compact('books'));
+        $keyword = $validated['keyword'] ?? null;
+
+        $genreId = isset($validated['genre'])
+            ? (int) $validated['genre']
+            : null;
+
+        $sort = $validated['sort'] ?? 'latest';
+
+        $books = Book::query()
+            ->with('genres')
+            ->withAvg('reviews', 'rating')
+            ->searchKeyword($keyword)
+            ->forGenre($genreId)
+            ->sorted($sort)
+            ->paginate(10)
+            ->withQueryString();
+
+        $genres = Genre::query()
+            ->orderBy('name')
+            ->get();
+
+        return view('books.index', compact('books', 'genres'));
     }
 
     /**
