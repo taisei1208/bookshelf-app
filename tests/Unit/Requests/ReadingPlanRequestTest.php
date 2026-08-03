@@ -18,6 +18,7 @@ use Tests\TestCase;
 class ReadingPlanRequestTest extends TestCase
 {
     use RefreshDatabase;
+
     private function validator(FormRequest $request, array $data): ValidatorContract
     {
         return Validator::make(
@@ -41,7 +42,7 @@ class ReadingPlanRequestTest extends TestCase
     {
         foreach (ReadingPlanStatus::cases() as $status) {
             $validator = $this->validator(
-                new IndexReadingPlanRequest(),
+                new IndexReadingPlanRequest,
                 [
                     'status' => $status->value,
                 ]
@@ -53,10 +54,11 @@ class ReadingPlanRequestTest extends TestCase
             );
         }
     }
+
     public function test_index_rules_accept_missing_status(): void
     {
         $validator = $this->validator(
-            new IndexReadingPlanRequest(),
+            new IndexReadingPlanRequest,
             []
         );
 
@@ -66,7 +68,7 @@ class ReadingPlanRequestTest extends TestCase
     public function test_index_rules_reject_invalid_status(): void
     {
         $validator = $this->validator(
-            new IndexReadingPlanRequest(),
+            new IndexReadingPlanRequest,
             [
                 'status' => 'invalid-status',
             ]
@@ -85,7 +87,7 @@ class ReadingPlanRequestTest extends TestCase
         $book = Book::factory()->create();
 
         $validator = $this->validator(
-            new StoreReadingPlanRequest(),
+            new StoreReadingPlanRequest,
             $this->storePayload($book)
         );
 
@@ -97,7 +99,7 @@ class ReadingPlanRequestTest extends TestCase
         $book = Book::factory()->create();
 
         $validator = $this->validator(
-            new StoreReadingPlanRequest(),
+            new StoreReadingPlanRequest,
             $this->storePayload($book, [
                 'book_id' => null,
             ])
@@ -116,7 +118,7 @@ class ReadingPlanRequestTest extends TestCase
         $book = Book::factory()->create();
 
         $validator = $this->validator(
-            new StoreReadingPlanRequest(),
+            new StoreReadingPlanRequest,
             $this->storePayload($book, [
                 'book_id' => 999999,
             ])
@@ -135,7 +137,7 @@ class ReadingPlanRequestTest extends TestCase
         $book = Book::factory()->create();
 
         $validator = $this->validator(
-            new StoreReadingPlanRequest(),
+            new StoreReadingPlanRequest,
             $this->storePayload($book, [
                 'target_date' => null,
             ])
@@ -154,7 +156,7 @@ class ReadingPlanRequestTest extends TestCase
         $book = Book::factory()->create();
 
         $validator = $this->validator(
-            new StoreReadingPlanRequest(),
+            new StoreReadingPlanRequest,
             $this->storePayload($book, [
                 'target_date' => today()
                     ->subDay()
@@ -181,7 +183,7 @@ class ReadingPlanRequestTest extends TestCase
             ->create();
 
         $validator = $this->validator(
-            new StoreReadingPlanRequest(),
+            new StoreReadingPlanRequest,
             $this->storePayload($book)
         );
 
@@ -191,7 +193,7 @@ class ReadingPlanRequestTest extends TestCase
     public function test_update_rules_accept_valid_target_date(): void
     {
         $validator = $this->validator(
-            new UpdateReadingPlanRequest(),
+            new UpdateReadingPlanRequest,
             [
                 'target_date' => today()
                     ->addDays(10)
@@ -205,7 +207,7 @@ class ReadingPlanRequestTest extends TestCase
     public function test_update_rules_reject_missing_target_date(): void
     {
         $validator = $this->validator(
-            new UpdateReadingPlanRequest(),
+            new UpdateReadingPlanRequest,
             [
                 'target_date' => null,
             ]
@@ -222,7 +224,7 @@ class ReadingPlanRequestTest extends TestCase
     public function test_update_rules_reject_past_target_date(): void
     {
         $validator = $this->validator(
-            new UpdateReadingPlanRequest(),
+            new UpdateReadingPlanRequest,
             [
                 'target_date' => today()
                     ->subDay()

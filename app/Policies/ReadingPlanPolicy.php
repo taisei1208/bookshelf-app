@@ -5,7 +5,6 @@ namespace App\Policies;
 use App\Enums\ReadingPlanStatus;
 use App\Models\ReadingPlan;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class ReadingPlanPolicy
 {
