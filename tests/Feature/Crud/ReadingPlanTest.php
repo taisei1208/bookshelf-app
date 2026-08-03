@@ -9,13 +9,12 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class ReadingPlanTest extends TestCase
 {
     use RefreshDatabase;
+
     public function test_guest_cannot_access_reading_plan_features(): void
     {
         $plan = ReadingPlan::factory()->create();
@@ -78,11 +77,9 @@ class ReadingPlanTest extends TestCase
                 $plans = $readingPlans->getCollection();
 
                 return $plans->contains(
-                    fn (ReadingPlan $plan): bool =>
-                        $plan->is($ownPlan)
+                    fn (ReadingPlan $plan): bool => $plan->is($ownPlan)
                 ) && ! $plans->contains(
-                    fn (ReadingPlan $plan): bool =>
-                        $plan->is($otherPlan)
+                    fn (ReadingPlan $plan): bool => $plan->is($otherPlan)
                 );
             }
         );
@@ -131,14 +128,11 @@ class ReadingPlanTest extends TestCase
                 $plans = $readingPlans->getCollection();
 
                 return $plans->contains(
-                    fn (ReadingPlan $plan): bool =>
-                        $plan->is($expiredPlan)
+                    fn (ReadingPlan $plan): bool => $plan->is($expiredPlan)
                 ) && ! $plans->contains(
-                    fn (ReadingPlan $plan): bool =>
-                        $plan->is($readingPlan)
+                    fn (ReadingPlan $plan): bool => $plan->is($readingPlan)
                 ) && ! $plans->contains(
-                    fn (ReadingPlan $plan): bool =>
-                        $plan->is($completedPlan)
+                    fn (ReadingPlan $plan): bool => $plan->is($completedPlan)
                 );
             }
         );
@@ -160,11 +154,9 @@ class ReadingPlanTest extends TestCase
             'books',
             function (Collection $viewBooks) use ($books): bool {
                 return $books->every(
-                    fn (Book $book): bool =>
-                        $viewBooks->contains(
-                            fn (Book $viewBook): bool =>
-                                $viewBook->is($book)
-                        )
+                    fn (Book $book): bool => $viewBooks->contains(
+                        fn (Book $viewBook): bool => $viewBook->is($book)
+                    )
                 );
             }
         );
@@ -280,8 +272,7 @@ class ReadingPlanTest extends TestCase
 
         $response->assertViewHas(
             'readingPlan',
-            fn (ReadingPlan $viewPlan): bool =>
-                $viewPlan->is($plan)
+            fn (ReadingPlan $viewPlan): bool => $viewPlan->is($plan)
         );
     }
 
@@ -450,6 +441,7 @@ class ReadingPlanTest extends TestCase
             $plan->completed_at
         );
     }
+
     public function test_owner_can_delete_reading_plan(): void
     {
         $owner = User::factory()->create();

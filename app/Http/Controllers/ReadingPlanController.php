@@ -9,7 +9,6 @@ use App\Http\Requests\UpdateReadingPlanRequest;
 use App\Models\Book;
 use App\Models\ReadingPlan;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ReadingPlanController extends Controller
@@ -67,7 +66,7 @@ class ReadingPlanController extends Controller
         $plan->load('book');
 
         return view('reading-plans.edit',
-        ['readingPlan' => $plan,]);
+            ['readingPlan' => $plan]);
     }
 
     public function update(UpdateReadingPlanRequest $request, ReadingPlan $plan): RedirectResponse

@@ -11,13 +11,16 @@ use Tests\TestCase;
 class ReadingPlanPolicyTest extends TestCase
 {
     use RefreshDatabase;
+
     private ReadingPlanPolicy $policy;
+
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->policy = new ReadingPlanPolicy();
+        $this->policy = new ReadingPlanPolicy;
     }
+
     public function test_owner_can_update_reading_plan(): void
     {
         $owner = User::factory()->create();
