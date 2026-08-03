@@ -11,9 +11,10 @@ use Tests\TestCase;
 class IndexBookRequestTest extends TestCase
 {
     use RefreshDatabase;
+
     private function validator(array $data)
     {
-        $request = new IndexBookRequest();
+        $request = new IndexBookRequest;
 
         return Validator::make(
             $data,

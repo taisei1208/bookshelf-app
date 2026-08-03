@@ -12,6 +12,7 @@ use Tests\TestCase;
 class BookSearchTest extends TestCase
 {
     use RefreshDatabase;
+
     private function bookIds(
         LengthAwarePaginator $books
     ): array {
@@ -441,8 +442,7 @@ class BookSearchTest extends TestCase
             ]);
 
         $books->each(
-            fn (Book $book) =>
-                $book->genres()->attach($genre->id)
+            fn (Book $book) => $book->genres()->attach($genre->id)
         );
 
         $response = $this->get(
