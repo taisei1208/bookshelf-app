@@ -106,17 +106,20 @@ class Book extends Model
     public function scopeSorted(Builder $query, string $sort): Builder
     {
         return match ($sort) {
-            'oldest' => $query->oldest('created_at'),
+            'oldest' => $query->oldest('created_at')->orderBy('id'),
 
-            'title' => $query->orderBy('title'),
+            'title' => $query->orderBy('title')->orderBy('id'),
 
             'rating' => $query->orderByRaw(
                 'reviews_avg_rating IS NULL ASC'
             )
                 ->orderByDesc('reviews_avg_rating')
-                ->orderByDesc('created_at'),
+                ->orderByDesc('created_at')
+                ->orderByDesc('id'),
 
-            default => $query->latest('created_at')
+            'latest' => $query->orderByDesc('created_at')->orderByDesc('id'),
+
+            default => $query->orderByDesc('created_at')->orderByDesc('id'),
         };
     }
 }
