@@ -161,7 +161,6 @@ class BookRequestTest extends TestCase
         ]);
 
         foreach ([
-            null,
             1234567890123,
             '123456789012',
             '12345678901234',
@@ -184,7 +183,7 @@ class BookRequestTest extends TestCase
             'isbn' => '1111111111111',
         ]);
 
-        foreach ([null, '日付ではありません'] as $date) {
+        foreach (['日付ではありません'] as $date) {
             $this->assertAllRequestsFail(
                 $book,
                 $this->basePayload($genre, [

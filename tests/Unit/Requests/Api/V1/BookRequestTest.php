@@ -122,11 +122,11 @@ class BookRequestTest extends TestCase
 
         $book = Book::factory()
             ->for($user)
-            ->create([
-                'isbn' => '1111111111111',
-            ]);
+            ->create();
 
         $payload = $this->basePayload($user, $genre, [
+            'isbn' => null,
+            'published_date' => null,
             'description' => null,
             'image_url' => null,
         ]);
@@ -162,12 +162,10 @@ class BookRequestTest extends TestCase
             ['author', ['不正'], 'author'],
             ['author', str_repeat('あ', 256), 'author'],
 
-            ['isbn', null, 'isbn'],
             ['isbn', 123, 'isbn'],
             ['isbn', '123456789012', 'isbn'],
             ['isbn', 'ABCDEFGHIJKLM', 'isbn'],
 
-            ['published_date', null, 'published_date'],
             ['published_date', '日付ではありません', 'published_date'],
 
             ['description', ['不正'], 'description'],
