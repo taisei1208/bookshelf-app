@@ -24,11 +24,13 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [BookController::class, 'index'])->name('books.index');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/books/isbn/{isbn?}', [BookController::class, 'searchByIsbn'])->name('books.isbn');
+
+    Route::resource('/books', BookController::class)->except(['index', 'show']);
+
     Route::post('/books/{book}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
 
     Route::resource('/reviews', ReviewController::class)->only(['edit', 'update', 'destroy']);
-
-    Route::resource('/books', BookController::class)->except(['index', 'show']);
 
     Route::resource('genres', GenreController::class);
 

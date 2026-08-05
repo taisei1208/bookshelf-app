@@ -3,10 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\IndexBookRequest;
+use App\Http\Requests\SearchBookByIsbnRequest;
 use App\Http\Requests\StoreBookRequest;
 use App\Http\Requests\UpdateBookRequest;
 use App\Models\Book;
 use App\Models\Genre;
+use App\Services\GoogleBooksService;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -52,6 +57,37 @@ class BookController extends Controller
         $genres = Genre::orderBy('id', 'asc')->get();
 
         return view('books.create', compact('genres'));
+    }
+
+    /**
+     * Get Get the information from the Google Books API
+     */
+    public function searchByIsbn(SearchBookByIsbnRequest $request, GoogleBooksService $googleBooksService): JsonResponse
+    {
+        $validated = $request->validated();
+
+        $isbn = $validated['isbn'];
+
+        try {
+            $bookData = $googleBooksService->findByIsbn($isbn);
+        } catch (ConnectionException|RequestException $exception) {
+            report($exception);
+
+            return response()->json([
+                'message' => '書籍情報の取得に失敗しました。',
+            ], 502);
+        }
+
+        if ($bookData === null) {
+            return response()->json([
+                'message' => '該当する書籍が見つかりませんでした。',
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => '書籍情報を取得しました。',
+            ...$bookData,
+        ]);
     }
 
     /**
