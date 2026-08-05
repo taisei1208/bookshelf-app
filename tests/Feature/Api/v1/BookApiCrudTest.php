@@ -7,6 +7,7 @@ use App\Models\Genre;
 use App\Models\Review;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Sanctum\Sanctum;
 use Tests\TestCase;
 
 class BookApiCrudTest extends TestCase
@@ -14,12 +15,10 @@ class BookApiCrudTest extends TestCase
     use RefreshDatabase;
 
     private function validPayload(
-        User $user,
         Genre $genre,
         array $overrides = []
     ) {
         return array_merge([
-            'user_id' => $user->id,
             'title' => 'APIテスト書籍',
             'author' => 'APIテスト著者',
             'isbn' => '1234567890123',
@@ -32,6 +31,7 @@ class BookApiCrudTest extends TestCase
 
     public function test_index_returns_paginated_books(): void
     {
+        $this->withoutExceptionHandling();
         $genre = Genre::factory()->create([
             'name' => 'ファンタジー',
         ]);
@@ -220,9 +220,11 @@ class BookApiCrudTest extends TestCase
         $response->assertJsonCount(2, 'data.reviews');
     }
 
-    public function test_store_creates_book(): void
+    public function test_authenticated_user_can_store_book(): void
     {
         $user = User::factory()->create();
+
+        Sanctum::actingAs($user);
 
         $genres = Genre::factory()
             ->count(2)
@@ -231,7 +233,6 @@ class BookApiCrudTest extends TestCase
         $response = $this->postJson(
             '/api/v1/books',
             [
-                'user_id' => $user->id,
                 'title' => 'APIから登録する書籍',
                 'author' => 'API登録著者',
                 'isbn' => '1234567890123',
@@ -274,12 +275,31 @@ class BookApiCrudTest extends TestCase
         }
     }
 
+    public function test_guest_cannot_store_book(): void
+    {
+        $genre = Genre::factory()->create();
+
+        $response = $this->postJson(
+            '/api/v1/books',
+            $this->validPayload($genre)
+        );
+
+        $response->assertUnauthorized();
+
+        $this->assertDatabaseMissing('books', [
+            'title' => 'APIテスト書籍',
+        ]);
+    }
+
     public function test_store_rejects_invalid_data(): void
     {
+        $user = User::factory()->create();
+
+        Sanctum::actingAs($user);
+
         $response = $this->postJson(
             '/api/v1/books',
             [
-                'user_id' => 999999,
                 'title' => null,
                 'author' => null,
                 'isbn' => '123',
@@ -291,7 +311,6 @@ class BookApiCrudTest extends TestCase
         $response->assertUnprocessable();
 
         $response->assertJsonValidationErrors([
-            'user_id',
             'title',
             'author',
             'isbn',
@@ -304,9 +323,9 @@ class BookApiCrudTest extends TestCase
         ]);
     }
 
-    public function test_update_changes_book_and_genres(): void
+    public function test_owner_can_update_book_and_genres(): void
     {
-        $user = User::factory()->create();
+        $owner = User::factory()->create();
 
         $oldGenre = Genre::factory()->create([
             'name' => '変更前ジャンル',
@@ -317,7 +336,7 @@ class BookApiCrudTest extends TestCase
         ]);
 
         $book = Book::factory()
-            ->for($user)
+            ->for($owner)
             ->create([
                 'title' => '更新前タイトル',
                 'isbn' => '1234567890123',
@@ -325,9 +344,11 @@ class BookApiCrudTest extends TestCase
 
         $book->genres()->attach($oldGenre->id);
 
+        Sanctum::actingAs($owner);
+
         $response = $this->putJson(
             "/api/v1/books/{$book->id}",
-            $this->validPayload($user, $newGenre, [
+            $this->validPayload($newGenre, [
                 'title' => '更新後タイトル',
                 'isbn' => $book->isbn,
             ])
@@ -347,6 +368,7 @@ class BookApiCrudTest extends TestCase
 
         $this->assertDatabaseHas('books', [
             'id' => $book->id,
+            'user_id' => $owner->id,
             'title' => '更新後タイトル',
         ]);
 
@@ -361,9 +383,78 @@ class BookApiCrudTest extends TestCase
         ]);
     }
 
-    public function test_destroy_deletes_book(): void
+    public function test_non_owner_cannot_update_book(): void
     {
-        $book = Book::factory()->create();
+        $owner = User::factory()->create();
+        $otherUser = User::factory()->create();
+        $genre = Genre::factory()->create();
+
+        $book = Book::factory()
+            ->for($owner)
+            ->create([
+                'title' => '更新前タイトル',
+            ]);
+
+        Sanctum::actingAs($otherUser);
+
+        $response = $this->putJson(
+            "/api/v1/books/{$book->id}",
+            $this->validPayload($genre, [
+                'title' => '不正な更新タイトル',
+                'isbn' => $book->isbn,
+            ])
+        );
+
+        $response->assertForbidden();
+
+        $this->assertDatabaseHas('books', [
+            'id' => $book->id,
+            'user_id' => $owner->id,
+            'title' => '更新前タイトル',
+        ]);
+
+        $this->assertDatabaseMissing('books', [
+            'id' => $book->id,
+            'title' => '不正な更新タイトル',
+        ]);
+    }
+
+    public function test_guest_cannot_update_book(): void
+    {
+        $owner = User::factory()->create();
+        $genre = Genre::factory()->create();
+
+        $book = Book::factory()
+            ->for($owner)
+            ->create([
+                'title' => '更新前タイトル',
+            ]);
+
+        $response = $this->putJson(
+            "/api/v1/books/{$book->id}",
+            $this->validPayload($genre, [
+                'title' => '未認証更新タイトル',
+                'isbn' => $book->isbn,
+            ])
+        );
+
+        $response->assertUnauthorized();
+
+        $this->assertDatabaseHas('books', [
+            'id' => $book->id,
+            'title' => '更新前タイトル',
+        ]);
+    }
+
+    public function test_owner_can_delete_book(): void
+    {
+        $owner = User::factory()->create();
+
+        $book = Book::factory()
+            ->for($owner)
+            ->create();
+
+        Sanctum::actingAs($owner);
 
         $response = $this->deleteJson(
             "/api/v1/books/{$book->id}"
@@ -372,6 +463,43 @@ class BookApiCrudTest extends TestCase
         $response->assertNoContent();
 
         $this->assertDatabaseMissing('books', [
+            'id' => $book->id,
+        ]);
+    }
+
+    public function test_non_owner_cannot_delete_book(): void
+    {
+        $owner = User::factory()->create();
+        $otherUser = User::factory()->create();
+
+        $book = Book::factory()
+            ->for($owner)
+            ->create();
+
+        Sanctum::actingAs($otherUser);
+
+        $response = $this->deleteJson(
+            "/api/v1/books/{$book->id}"
+        );
+
+        $response->assertForbidden();
+
+        $this->assertDatabaseHas('books', [
+            'id' => $book->id,
+        ]);
+    }
+
+    public function test_guest_cannot_delete_book(): void
+    {
+        $book = Book::factory()->create();
+
+        $response = $this->deleteJson(
+            "/api/v1/books/{$book->id}"
+        );
+
+        $response->assertUnauthorized();
+
+        $this->assertDatabaseHas('books', [
             'id' => $book->id,
         ]);
     }

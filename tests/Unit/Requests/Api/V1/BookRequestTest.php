@@ -26,12 +26,10 @@ class BookRequestTest extends TestCase
     }
 
     private function basePayload(
-        User $user,
         Genre $genre,
         array $overrides = []
     ): array {
         return array_merge([
-            'user_id' => $user->id,
             'title' => 'テスト書籍',
             'author' => 'テスト著者',
             'isbn' => '2222222222222',
@@ -105,7 +103,7 @@ class BookRequestTest extends TestCase
         foreach ($this->requests($book) as $request) {
             $validator = $this->validator(
                 $request,
-                $this->basePayload($user, $genre)
+                $this->basePayload($genre)
             );
 
             $this->assertTrue(
@@ -124,7 +122,7 @@ class BookRequestTest extends TestCase
             ->for($user)
             ->create();
 
-        $payload = $this->basePayload($user, $genre, [
+        $payload = $this->basePayload($genre, [
             'isbn' => null,
             'published_date' => null,
             'description' => null,
@@ -150,10 +148,6 @@ class BookRequestTest extends TestCase
             ]);
 
         $cases = [
-            ['user_id', null, 'user_id'],
-            ['user_id', '不正', 'user_id'],
-            ['user_id', 999999, 'user_id'],
-
             ['title', null, 'title'],
             ['title', ['不正'], 'title'],
             ['title', str_repeat('あ', 256), 'title'],
@@ -187,7 +181,6 @@ class BookRequestTest extends TestCase
 
         foreach ($cases as [$field, $value, $errorField]) {
             $payload = $this->basePayload(
-                $user,
                 $genre,
                 [$field => $value]
             );
@@ -213,7 +206,7 @@ class BookRequestTest extends TestCase
 
         $validator = $this->validator(
             new StoreBookRequest,
-            $this->basePayload($user, $genre, [
+            $this->basePayload($genre, [
                 'isbn' => '1111111111111',
             ])
         );
@@ -237,7 +230,7 @@ class BookRequestTest extends TestCase
 
         $validator = $this->validator(
             $this->updateRequest($book),
-            $this->basePayload($user, $genre, [
+            $this->basePayload($genre, [
                 'isbn' => '1111111111111',
             ])
         );
@@ -264,7 +257,7 @@ class BookRequestTest extends TestCase
 
         $validator = $this->validator(
             $this->updateRequest($book),
-            $this->basePayload($user, $genre, [
+            $this->basePayload($genre, [
                 'isbn' => '3333333333333',
             ])
         );
