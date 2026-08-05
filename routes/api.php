@@ -14,4 +14,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::apiResource('v1/books', BookController::class);
+Route::apiResource('v1/books', BookController::class)->only(['index', 'show']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('v1/books', BookController::class)->only(['store', 'update', 'destroy']);
+});

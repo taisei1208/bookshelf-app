@@ -20,29 +20,21 @@ class BookController extends Controller
     public function index(IndexBookRequest $request): AnonymousResourceCollection
     {
         $validated = $request->validated();
-        $query = Book::with('genres');
 
-        if ($request->filled('keyword')) {
-            $keyword = $validated['keyword'];
-            $query->where(function ($q) use ($keyword) {
-                $q->where('title', 'like', "%{$keyword}%")
-                    ->orWhere('author', 'like', "%{$keyword}%");
-            });
-        }
+        $keyword = $validated['keyword'] ?? null;
 
-        if ($request->filled('genre_id')) {
-            $genreId = $validated['genre_id'];
-            $query->whereHas(
-                'genres',
-                function ($q) use ($genreId) {
-                    $q->where('genres.id', $genreId);
-                });
-        }
+        $genreId = isset($validated['genre_id'])
+            ? (int) $validated['genre_id'] : null;
 
         $perPage = $validated['per_page'] ?? 20;
-        $books = $query->withAvg('reviews', 'rating')
+
+        $books = Book::query()
+            ->with('genres')
+            ->withAvg('reviews', 'rating')
             ->withCount('reviews')
-            ->latest()
+            ->searchKeyword($keyword)
+            ->forGenre($genreId)
+            ->sorted('latest')
             ->paginate($perPage)
             ->withQueryString();
 
@@ -57,6 +49,8 @@ class BookController extends Controller
         $validated = $request->validated();
         $genreIds = $validated['genres'];
         unset($validated['genres']);
+
+        $validated['user_id'] = $request->user()->id;
 
         $book = DB::transaction(
             function () use ($validated, $genreIds): Book {
@@ -94,6 +88,8 @@ class BookController extends Controller
      */
     public function update(UpdateBookRequest $request, Book $book): BookResource
     {
+        $this->authorize('update', $book);
+
         $validated = $request->validated();
         $genreIds = $validated['genres'];
         unset($validated['genres']);
@@ -119,6 +115,8 @@ class BookController extends Controller
      */
     public function destroy(Book $book): JsonResponse
     {
+        $this->authorize('delete', $book);
+
         $book->delete();
 
         return response()->json(null, 204);

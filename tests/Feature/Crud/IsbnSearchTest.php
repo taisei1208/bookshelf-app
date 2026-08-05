@@ -241,8 +241,7 @@ class IsbnSearchTest extends TestCase
         $response
             ->assertStatus(502)
             ->assertJson([
-                'message' =>
-                    '書籍情報の取得に失敗しました。',
+                'message' => '書籍情報の取得に失敗しました。',
             ]);
     }
 }
