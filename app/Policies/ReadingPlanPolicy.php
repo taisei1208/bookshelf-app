@@ -30,6 +30,8 @@ class ReadingPlanPolicy
      */
     public function complete(User $user, ReadingPlan $readingPlan): bool
     {
-        return $user->id === $readingPlan->user_id;
+        return $user->id === $readingPlan->user_id
+            && $readingPlan->status
+            !== ReadingPlanStatus::Completed;
     }
 }
