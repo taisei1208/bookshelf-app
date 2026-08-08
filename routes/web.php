@@ -3,6 +3,7 @@
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\GenreController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\RankingController;
 use App\Http\Controllers\ReadingPlanController;
 use App\Http\Controllers\ReportController;
@@ -46,14 +47,13 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/reading-plans/{plan}/complete', [ReadingPlanController::class, 'complete'])->name('reading-plans.complete');
 
-    Route::get('/reports', [ReportController::class, 'index'])
-        ->name('reports.index');
+    Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+
+    Route::post('notifications/{id}/read', [NotificationController::class, 'read'])->name('notifications.read');
 });
 
 Route::get('books/{book}', [BookController::class, 'show'])->name('books.show');
 
 Route::get('/ranking', [RankingController::class, 'index'])->name('ranking.index');
-
-Route::get('/notifications', function () {
-    return redirect()->route('books.index');
-})->name('notifications.index');
