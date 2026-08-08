@@ -36,6 +36,8 @@
 
 ## ER図
 
+![ER図](docs/book-shelf-er.png)
+
 ## 開発環境URL
 
 - アプリケーション: http://localhost
@@ -52,17 +54,22 @@
 
 1. リポジトリをクローン
 
+```
 git clone https://github.com/taisei1208/bookshelf-app.git
 cd bookshelf-app
+```
 
 2. .envファイルの準備
 
 .env.exampleをコピーして.envを作成します。
 
+```
 cp .env.example .env
+```
 
 .env.exampleのデフォルト値はSail向けではないため、.env内のDB接続情報を次のように変更してください。
 
+```
 APP_NAME=BookShelf
 APP_URL=http://localhost
 
@@ -75,6 +82,7 @@ DB_PASSWORD=password
 
 FORWARD_DB_PORT=3306
 FORWARD_PHPMYADMIN_PORT=8080
+```
 
 ISBN検索を利用する場合は、Google Cloud ConsoleでBooks APIを有効にし、取得したAPIキーを設定します。
 
@@ -87,28 +95,30 @@ GOOGLE_BOOKS_API_KEY=取得したAPIキー
 
 プロジェクトの初回セットアップ時はvendorディレクトリが存在せず、Sailコマンドを使用できません。以下のDockerコマンドを実行して、コンテナ内でcomposer installを実行します。
 
+```
 docker run --rm \
  -u "$(id -u):$(id -g)" \
  -v "$(pwd):/var/www/html" \
  -w /var/www/html \
  laravelsail/php85-composer:latest \
  composer install --ignore-platform-reqs
-
-ローカル環境でPHPとComposerを使用できる場合は、次のコマンドでもインストールできます。
-
-composer install
+```
 
 4. Laravel Sailの起動
 
 以下のコマンドでDockerコンテナを起動します。
 
+```
 ./vendor/bin/sail up -d
+```
 
 5. エイリアスの設定（推奨）
 
 毎回./vendor/bin/sailと入力する代わりに、エイリアスを設定できます。
 
+```
 alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'
+```
 
 以降の手順では、エイリアスを設定したものとしてsailと記載します。設定していない場合は./vendor/bin/sailへ読み替えてください。
 
@@ -124,23 +134,31 @@ sail artisan config:clear
 
 以下のコマンドでテーブルを作成し、ダミーデータを投入します。
 
+```
 sail artisan migrate:fresh --seed
+```
 
 DB接続時にAccess deniedなどのエラーが表示される場合は、以前作成されたDockerボリュームのDB情報が残っている可能性があります。
 
 以下のコマンドを実行するとDBデータがすべて削除されるため、必要なデータがないことを確認してから実行してください。
 
+```
 sail down -v
 sail up -d
+```
 
 MySQLコンテナが起動するまで30秒ほど待ってから、もう一度実行します。
 
+```
 sail artisan migrate:fresh --seed
+```
 
 8. フロントエンドのセットアップ
 
+```
 sail npm install
 sail npm run dev
+```
 
 npm run devは開発中は起動したままにしてください。
 
@@ -162,11 +180,15 @@ migrate:fresh --seed実行後、次のユーザーでログインできます。
 
 ## テスト実行
 
+```
 sail artisan test
+```
 
 カバレッジ付きで実行する場合:
 
+```
 sail artisan test --coverage
+```
 
 ## 機能一覧
 
@@ -216,21 +238,32 @@ sail artisan test --coverage
 
 動作確認用のAPIトークンはTinkerから発行します。
 
+```
 sail artisan tinker
 
 $user = App\Models\User::where('email', 'yamada@example.com')->firstOrFail();
 $token = $user->createToken('postman')->plainTextToken;
 $token;
+```
 
 Postmanなどから書き込み系APIを利用するときは、次のヘッダーを設定します。
 
+```
 Accept: application/json
 Content-Type: application/json
 Authorization: Bearer 発行したトークン
+```
 
 ## 日次バッチ処理
 
 - 期限を過ぎた読書中の計画を期限切れへ更新
-  sail artisan update:reading-plan-status
+
+```
+sail artisan update:reading-plan-status
+```
+
 - 条件を満たす読書計画へリマインダー通知を保存
-  sail artisan notify:reading-plan
+
+```
+sail artisan notify:reading-plan
+```
