@@ -1,66 +1,236 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# BookShelf 書籍レビューアプリ
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+書籍の登録、レビュー、お気に入り、ランキングなどの機能を実装したLaravelプロジェクトです。
 
-## About Laravel
+一般ユーザーが書籍やレビューを投稿できるほか、Google Books APIを利用したISBN検索、マイ読書レポート、読書計画、期限に応じたリマインダー通知を利用できます。また、外部アプリケーション向けに書籍情報を操作する公開APIを実装し、書き込み系エンドポイントをLaravel Sanctumで保護しています。
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 作成者
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+武田 泰生
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 使用技術
 
-## Learning Laravel
+- PHP 8.5
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- Laravel 10.x
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+- MySQL 8.4
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- Docker / Docker Compose / Laravel Sail
 
-## Laravel Sponsors
+- Vite 5
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- Tailwind CSS 3.4
 
-### Premium Partners
+- Alpine.js
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+- Laravel Fortify（Web認証）
 
-## Contributing
+- Laravel Sanctum（APIトークン認証）
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- Google Books API
 
-## Code of Conduct
+- PHPUnit 10
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- phpMyAdmin
 
-## Security Vulnerabilities
+## ER図
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 開発環境URL
 
-## License
+- アプリケーション: http://localhost
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- phpMyAdmin: http://localhost:8080
+
+## 動作環境
+
+- Docker
+
+- Docker Compose
+
+## 環境構築手順
+
+1. リポジトリをクローン
+
+git clone https://github.com/taisei1208/bookshelf-app.git
+cd bookshelf-app
+
+2. .envファイルの準備
+
+.env.exampleをコピーして.envを作成します。
+
+cp .env.example .env
+
+.env.exampleのデフォルト値はSail向けではないため、.env内のDB接続情報を次のように変更してください。
+
+APP_NAME=BookShelf
+APP_URL=http://localhost
+
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=laravel
+DB_USERNAME=sail
+DB_PASSWORD=password
+
+FORWARD_DB_PORT=3306
+FORWARD_PHPMYADMIN_PORT=8080
+
+ISBN検索を利用する場合は、Google Cloud ConsoleでBooks APIを有効にし、取得したAPIキーを設定します。
+
+GOOGLE_BOOKS_API_URL=https://www.googleapis.com/books/v1/volumes
+GOOGLE_BOOKS_API_KEY=取得したAPIキー
+
+.envにはAPIキーやパスワードが含まれるため、Gitへ追加しないでください。
+
+3. Composer依存パッケージのインストール
+
+プロジェクトの初回セットアップ時はvendorディレクトリが存在せず、Sailコマンドを使用できません。以下のDockerコマンドを実行して、コンテナ内でcomposer installを実行します。
+
+docker run --rm \
+ -u "$(id -u):$(id -g)" \
+ -v "$(pwd):/var/www/html" \
+ -w /var/www/html \
+ laravelsail/php85-composer:latest \
+ composer install --ignore-platform-reqs
+
+ローカル環境でPHPとComposerを使用できる場合は、次のコマンドでもインストールできます。
+
+composer install
+
+4. Laravel Sailの起動
+
+以下のコマンドでDockerコンテナを起動します。
+
+./vendor/bin/sail up -d
+
+5. エイリアスの設定（推奨）
+
+毎回./vendor/bin/sailと入力する代わりに、エイリアスを設定できます。
+
+alias sail='[ -f sail ] && bash sail || bash vendor/bin/sail'
+
+以降の手順では、エイリアスを設定したものとしてsailと記載します。設定していない場合は./vendor/bin/sailへ読み替えてください。
+
+6. アプリケーションキーの生成
+
+sail artisan key:generate
+
+Google Books APIの設定を変更した場合は、設定キャッシュを削除します。
+
+sail artisan config:clear
+
+7. データベースのマイグレーションと初期データ投入
+
+以下のコマンドでテーブルを作成し、ダミーデータを投入します。
+
+sail artisan migrate:fresh --seed
+
+DB接続時にAccess deniedなどのエラーが表示される場合は、以前作成されたDockerボリュームのDB情報が残っている可能性があります。
+
+以下のコマンドを実行するとDBデータがすべて削除されるため、必要なデータがないことを確認してから実行してください。
+
+sail down -v
+sail up -d
+
+MySQLコンテナが起動するまで30秒ほど待ってから、もう一度実行します。
+
+sail artisan migrate:fresh --seed
+
+8. フロントエンドのセットアップ
+
+sail npm install
+sail npm run dev
+
+npm run devは開発中は起動したままにしてください。
+
+9. アプリケーションへのアクセス
+
+ブラウザで http://localhost にアクセスします。
+
+## 動作確認用ユーザー
+
+migrate:fresh --seed実行後、次のユーザーでログインできます。主要な読書計画の確認用データは山田太郎に集約しています。
+
+| 名前     | メールアドレス        | パスワード |
+| -------- | --------------------- | ---------- |
+| 山田太郎 | yamada@example.com    | password   |
+| 鈴木花子 | suzuki@example.com    | password   |
+| 田中一郎 | tanaka@example.com    | password   |
+| 佐藤美咲 | sato@example.com      | password   |
+| 高橋健太 | takahashi@example.com | password   |
+
+## テスト実行
+
+sail artisan test
+
+カバレッジ付きで実行する場合:
+
+sail artisan test --coverage
+
+## 機能一覧
+
+- ユーザー認証（登録、ログイン、ログアウト）
+
+- 書籍CRUD（一覧、詳細、登録、編集、削除）
+
+- 書籍のキーワード検索、ジャンル絞り込み、並び替え
+
+- ISBNによるGoogle Books API検索と登録フォームへの自動入力
+
+- ジャンルCRUD
+
+- レビューCRUD
+
+- レビューへのいいね追加・解除
+
+- 書籍のお気に入り追加・解除
+
+- 書籍ランキング
+
+- マイ読書レポート
+
+- 読書計画の登録、期日変更、読了、削除、状態絞り込み
+
+- 読書計画の自動失効
+
+- 読書計画のリマインダー通知
+
+- 通知一覧と既読化
+
+- Sanctum認証付き公開API
+
+## APIエンドポイント一覧
+
+読み取り系APIは認証不要です。書き込み系APIはLaravel SanctumのBearerトークン認証が必要です。全エンドポイントは/api/v1プレフィックス配下に定義されています
+
+| HTTPメソッド | URL                       | 認証             | 概要                                             |
+| ------------ | ------------------------- | ---------------- | ------------------------------------------------ |
+| GET          | `/api/v1/books`           | 不要             | 書籍一覧（検索・絞り込み・ページネーション付き） |
+| GET          | `/api/v1/books/{book}`    | 不要             | 書籍詳細（ジャンル・レビュー含む）               |
+| POST         | `/api/v1/books`           | Sanctum          | 書籍を新規登録                                   |
+| PUT          | `/api/v1/books/{contact}` | Sanctum + 所有者 | 書籍を更新                                       |
+| DELETE       | `/api/v1/books/{contact}` | Sanctum + 所有者 | 書籍を削除                                       |
+
+## Sanctumトークンの発行
+
+動作確認用のAPIトークンはTinkerから発行します。
+
+sail artisan tinker
+
+$user = App\Models\User::where('email', 'yamada@example.com')->firstOrFail();
+$token = $user->createToken('postman')->plainTextToken;
+$token;
+
+Postmanなどから書き込み系APIを利用するときは、次のヘッダーを設定します。
+
+Accept: application/json
+Content-Type: application/json
+Authorization: Bearer 発行したトークン
+
+## 日次バッチ処理
+
+- 期限を過ぎた読書中の計画を期限切れへ更新
+  sail artisan update:reading-plan-status
+- 条件を満たす読書計画へリマインダー通知を保存
+  sail artisan notify:reading-plan

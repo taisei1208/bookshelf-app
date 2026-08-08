@@ -12,9 +12,15 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('notify:reading-plan')->dailyAt('00:00');
+        $schedule->command('update:reading-plan-status')
+            ->dailyAt('00:00')
+            ->timezone('Asia/Tokyo')
+            ->withoutOverlapping();
 
-        $schedule->command('update:reading-plan-status')->dailyAt('00:00');
+        $schedule->command('notify:reading-plan')
+            ->dailyAt('00:05')
+            ->timezone('Asia/Tokyo')
+            ->withoutOverlapping();
     }
 
     /**

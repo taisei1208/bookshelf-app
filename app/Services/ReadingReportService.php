@@ -104,6 +104,13 @@ class ReadingReportService
     {
         return $reviews
             ->groupBy('book_id')
+            ->filter(
+                fn (Collection $bookReviews): bool => (float) $bookReviews->avg('rating') >= 4
+            )
+            ->sortByDesc(
+                fn (Collection $bookReviews): float => (float) $bookReviews->avg('rating')
+            )
+            ->take(5)
             ->map(function (Collection $bookReviews): array {
                 $review = $bookReviews->first();
 
@@ -116,11 +123,6 @@ class ReadingReportService
                     ),
                 ];
             })
-            ->filter(
-                fn (array $book): bool => $book['rating'] >= 4
-            )
-            ->sortByDesc('rating')
-            ->take(5)
             ->values();
     }
 

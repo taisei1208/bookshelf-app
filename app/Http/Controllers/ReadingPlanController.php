@@ -81,8 +81,6 @@ class ReadingPlanController extends Controller
             'completed_at' => null,
         ]);
 
-        $plan->update($validated);
-
         return redirect()->route('reading-plans.index')->with('success', '読書計画を更新しました。');
     }
 
